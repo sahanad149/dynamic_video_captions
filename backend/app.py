@@ -1,35 +1,41 @@
-from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
+from flask import Flask, request, jsonify, send_from_directory
 import os
-from process_video import summarize_transcript, add_text_overlay, encode_video
+from process_video import process_video
 
 app = Flask(__name__)
 
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
+
 @app.route('/upload', methods=['POST'])
-def upload_video():
+def upload_file():
     if 'file' not in request.files:
-        return jsonify({"error": "No file part"})
-    
+        return jsonify({"error": "No file part"}), 400
+
     file = request.files['file']
     if file.filename == '':
-        return jsonify({"error": "No selected file"})
-    
-    if file:
-        filename = secure_filename(file.filename)
-        filepath = os.path.join('uploads', filename)
-        file.save(filepath)
+        return jsonify({"error": "No selected file"}), 400
 
-        # Example: Reading transcript from a file (can be modified to read from an API or other source)
-        with open('data/example_transcript.txt', 'r') as f:
-            transcript = f.read()
+    if file:
+        filename = 'uploaded_video.mov'
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
 
         # Process the video
-        summary = summarize_transcript(transcript)
-        output_path = os.path.join('uploads', f"output_{filename}")
-        add_text_overlay(filepath, output_path, summary)
-        encode_video(output_path, output_path)
-        
-        return jsonify({"output_video": output_path})
+        transcript_path, encoded_video_path = process_video(file_path)
+
+        return jsonify({
+            "video_path": encoded_video_path,
+            "transcript_path": os.path.basename(transcript_path)
+        })
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == "__main__":
     app.run(debug=True)

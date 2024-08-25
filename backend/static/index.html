@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Video Captions</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Dynamic Video Captions</h1>
+        <p>Upload a video, get a transcript summary, and add dynamic captions!</p>
+    </header>
+    <main>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="videoFile" name="videoFile" accept="video/*" required>
+            <button type="submit">Upload Video</button>
+        </form>
+        <div id="uploadStatus" class="hidden">
+            <p>Processing your video...</p>
+        </div>
+        <div id="videoPreview" class="hidden">
+            <h2>Video Preview</h2>
+            <video id="preview" controls></video>
+        </div>
+        <div id="summary" class="hidden">
+            <h2>Video Summary</h2>
+            <p id="summaryText"></p>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

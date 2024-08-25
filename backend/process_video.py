@@ -1,7 +1,8 @@
-import tensorflow as tf
-from transformers import T5Tokenizer, T5ForConditionalGeneration
+import os
 import cv2
 import ffmpeg
+import tensorflow as tf
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 
 def summarize_transcript(transcript):
     tokenizer = T5Tokenizer.from_pretrained('t5-small')
@@ -44,8 +45,22 @@ def encode_video(input_video_path, output_video_path):
         .run()
     )
 
-# Example usage (for testing)
-if __name__ == "__main__":
-    transcript = "Your video transcript here."
+def process_video(file_path):
+    transcript = "Example transcript"  # Replace with actual transcript extraction logic
     summary = summarize_transcript(transcript)
-    print(summary)
+
+    # Save transcript summary
+    if not os.path.exists('uploads/data'):
+        os.makedirs('uploads/data')
+    transcript_path = os.path.join('uploads', 'data', 'transcript.txt')
+    with open(transcript_path, 'w') as f:
+        f.write(summary)
+
+    # Add text overlay and encode video
+    output_path = file_path.replace('.mov', '_output.mov')
+    add_text_overlay(file_path, output_path, summary)
+    
+    encoded_output_path = output_path.replace('.mov', '_encoded.mp4')
+    encode_video(output_path, encoded_output_path)
+
+    return transcript_path, encoded_output_path
