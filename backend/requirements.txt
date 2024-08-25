@@ -1,0 +1,5 @@
+tensorflow
+transformers
+opencv-python
+flask
+ffmpeg-python
